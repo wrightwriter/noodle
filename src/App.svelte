@@ -33,6 +33,7 @@
     let i = 0;
     for(const output of midiAccess.outputs.values()) {
       outputs[i] = output;
+      output
       i++;
       console.log(output);
     }
@@ -70,14 +71,13 @@
     
     
 
-    
-    const play = (ch: number, t: number, note: number, len: number = 0.2, vel: number = 128)=>{
+    const play = (ch: number, t: number, note: number, len: number = 0.2, vel: number = 1)=>{
       if(t < 0)
         return
       let timeout_start = setTimeout(()=>{
-        outputs[ch].send([NOTE_ON, 41 + note, 0x7f]);
+        outputs[0].send([NOTE_ON + ch, 41 + note, vel*127]);
         let timeout_stop = setTimeout(()=>{
-          outputs[ch].send([NOTE_OFF, 41 + note, 0x7f]);
+          outputs[0].send([NOTE_OFF + ch, 41 + note, vel*127]);
           timeouts.splice(timeouts.indexOf(timeout_stop),1)
         }, len)
         timeouts.splice(timeouts.indexOf(timeout_start),1)
