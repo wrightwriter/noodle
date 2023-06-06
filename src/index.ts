@@ -1,5 +1,8 @@
 
 // alert("amogus")
+
+import "../public/JetBrainsMono-Regular.ttf"
+
 import App from './App.svelte';
 
 const app = new App({

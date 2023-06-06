@@ -49,6 +49,10 @@ export default {
   },
   ignoreWarnings: [/Failed to parse source map/],
   module: {
+    noParse: [
+      // require.resolve('typescript/lib/typescript.js'),
+      /typescript/, /eslint/
+    ],
     rules: [
       
 			// Rule: Svelte
@@ -63,7 +67,19 @@ export default {
 						},
 						emitCss: isProduction,
 						hotReload: isDevelopment,
-            preprocess: SveltePreprocess()
+            preprocess: SveltePreprocess( {
+              sass: true,
+              scss: true,
+            }),
+            // @ts-ignore
+            onwarn: (warning, handler) =>{
+              const { code, frame } = warning;
+              if (code === "css-unused-selector")
+                  return;
+
+              handler(warning);
+            }
+
             
 						// hotOptions: {
 						// 	// List of options and defaults: https://www.npmjs.com/package/svelte-loader-hot#usage

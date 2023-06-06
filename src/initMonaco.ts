@@ -3,7 +3,8 @@ import loader from '@monaco-editor/loader';
 import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 export default async(
-  editorContainer: HTMLElement
+  editorContainer: HTMLElement,
+  onChange: (editor: Monaco.editor.IStandaloneCodeEditor, monaco: typeof Monaco)=>Promise<void>
 ):Promise<[typeof Monaco, any]>=>{
     // Remove this line to load the monaco editor from a CDN
     // see https://www.npmjs.com/package/@monaco-editor/loader#config
@@ -15,6 +16,9 @@ export default async(
     monaco = await loader.init();
     // _monaco.set(monaco)
     // monaco = get(_monaco);
+    // monaco.languages.setLanguageConfiguration(
+    //   "typescript",
+    // )
 
     // monaco
    // Sample
@@ -33,9 +37,16 @@ export default async(
       mouseWheelZoom: true,
       automaticLayout: true,
     });
-    let monokai = await import('monaco-themes/themes/Monokai.json');
-    // @ts-ignore
+    editor.onDidChangeModelContent(e=>{
+      // console.log(e)
+      editor.getValue();
+    })
+    
+    editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.Enter, ()=>{
+      onChange(editor, monaco).then(e=>{})
+    })
 
+    let monokai = await import('monaco-themes/themes/Monokai.json');
     console.log(monokai);
     // @ts-ignore
     monaco.editor.defineTheme('monokai', monokai);
