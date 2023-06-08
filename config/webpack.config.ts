@@ -28,7 +28,11 @@ const isProduction = false;
 const isDevelopment = !isProduction;
 
 
-export default {
+// export default {
+module.exports = {
+  
+}
+module.exports.default = {
   entry: "./src/index.ts",
   //entry: "./src/tests.ts",
   output: {
@@ -41,7 +45,8 @@ export default {
     extensions: [".js", ".ts", ".svelte"],
     modules: [path.resolve("./src"), path.resolve("./node_modules")],
     alias: {
-      svelte: path.resolve('node_modules', 'svelte')
+      svelte: path.resolve('node_modules', 'svelte'),
+      src: path.resolve('src')
     },
     mainFields: ['svelte', 'browser', 'module', 'main'],
     conditionNames: ["svelte", 'browser']
@@ -74,8 +79,15 @@ export default {
             // @ts-ignore
             onwarn: (warning, handler) =>{
               const { code, frame } = warning;
-              if (code === "css-unused-selector")
+              if (
+                code === "css-unused-selector"
+                || code === "unused-export-let")
                   return;
+              // alert("amog")
+              // console.log("AMOOOOOOOOOOOOG")
+              // console.log(code)
+              // console.log(warning)
+              // console.log(handler)
 
               handler(warning);
             }

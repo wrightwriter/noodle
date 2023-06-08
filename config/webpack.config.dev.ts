@@ -1,9 +1,13 @@
 // const config = require("./webpack.config")
-// const config = require("./webpack.config")
-import cfg from "./webpack.config"
+const cfg = require("./webpack.config")
+// import cfg from "./webpack.config"
 
-export default {
-  ...cfg,
+// export default {
+module.exports = {
+  
+}
+module.exports.default = {
+  ...cfg.default,
   mode: "development",
   devServer: {
     //   // disables the Hot Module Replacement feature because probably not ideal

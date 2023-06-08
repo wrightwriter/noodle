@@ -7,18 +7,21 @@
   import { _monaco } from 'store';
   import { get } from 'svelte/store';
   import initMonaco from 'initMonaco'
-  import ts, { Diagnostic } from "typescript";
-    import internal from 'stream'
+  // import ts, { Diagnostic } from "typescript";
+  // import internal from 'stream'
+  // import Test from 'Test.svelte'
+
+  import Knob from 'Knob.svelte'
+  // console.log(Knob)
+  (Knob)
+
+  export let monaco: typeof Monaco;
   // const eslint = require('eslint');
   // import eslint from 'eslint';
   // const { Linter } = eslint;
   // const linter = new Linter();
-  
-  
 
 
-
-  export let monaco: typeof Monaco;
   // @ts-ignore
   let editorContainer: HTMLElement;
   let error: any = "";
@@ -79,7 +82,7 @@
         let timeout_stop = setTimeout(()=>{
           outputs[0].send([NOTE_OFF + ch, 41 + note, vel*127]);
           timeouts.splice(timeouts.indexOf(timeout_stop),1)
-        }, len)
+        }, 1000 * len)
         timeouts.splice(timeouts.indexOf(timeout_start),1)
         timeouts.push(timeout_stop)
       }, 60*1000*t)
@@ -185,7 +188,11 @@
                 i++
               }
             } catch (_error) {
-              alert(error)
+              console.log(_error)
+              console.log("asdgadsgasg")
+              // @ts-ignore
+              console.log(_error.stack.split("\n")[4])
+              alert(_error)
               error = _error;
             }
           }
@@ -213,6 +220,9 @@
 <main>
   <div id="bar">
     <div id="error">{error}</div>
+    <!-- svelte-ignore missing-declaration -->
+    <Knob max={1} min={0} value={0} />
+    <!-- <Test></Test> -->
     <!-- <h1>Hello {name}!</h1>
     <h1>{cnt.toString()}</h1>
     <button on:click={()=>{cnt++}}>inc</button> -->

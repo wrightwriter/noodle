@@ -4,8 +4,8 @@ const path = require("path")
 const {resolve} = require('path');
 const WebpackObfuscator = require('webpack-obfuscator');
 
-// const cfg = require("./webpack.config")
-import cfg from "./webpack.config"
+const cfg = require("./webpack.config")
+// import cfg from "./webpack.config"
 
 
 
