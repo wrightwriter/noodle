@@ -60,7 +60,10 @@ module.exports.default = {
     ],
     rules: [
       
-			// Rule: Svelte
+      {
+        test: /\.svg$/,
+        loader: 'svg-inline-loader'
+      },
 			{
 				test: /\.svelte$/,
 				use: {
