@@ -130,8 +130,8 @@
         }
         constructor(t,init,cb){
             this.t = t; this.offs = 0
-            this.cb = cb.bind(this)
             this.it = 0
+            this.cb = ()=>{cb.bind(this)(); this.it++}
             if(init)
                 init()
         }
