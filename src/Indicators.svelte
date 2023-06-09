@@ -54,7 +54,7 @@
         aspect-ratio: 1/1;
       }
       .indicator-active{
-        background: red !important;
+        background: white !important;
       }
     }
   }  

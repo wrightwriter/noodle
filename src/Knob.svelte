@@ -69,6 +69,7 @@
     );
     box-shadow: -.15em .15em .05em .02em rgba(0, 0, 0, 0.3);
     border-radius: 50%;
+    border: 0.2rem solid white;
   }  
 
   .knob {

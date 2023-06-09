@@ -36,14 +36,21 @@
 	// const { Linter } = eslint;
 	// const linter = new Linter();
 
+	let loops: Array<Function> = []
+	let timeouts: Array<NodeJS.Timeout> = []
+	let intervals: Array<NodeJS.Timeout> = []
+
+	const NOTE_ON = 144
+	const NOTE_OFF = 128
+
 	let playButton: PlayButton
 
 	// @ts-ignore
 	const knob_components: {string: Knob} = {}
 	const knobs: Array<number> = [0, 0, 0, 0]
-  
-  let indicators_component: Indicators
-  let indicators_outpus: Array<Array<boolean>> 
+
+	let indicators_component: Indicators
+	let indicators_outpus: Array<Array<boolean>>
 
 	let js_code = ''
 
@@ -68,39 +75,20 @@
 		i = 0
 		for (const input of midiAccess.inputs.values()) {
 			inputs.push(input)
-      
-      let input_idx = i;
+
+			let input_idx = i
 			input.onmidimessage = (event) => {
-      //   return
-			// 	// const [status, data, data2] = event
-        console.log(event)
 				const command = event.data[0]
-        // console.log(event.data[0])
-			// 	// const note = event.data[1]
-			// 	// const velocity = event.data.length > 2 ? event.data[2] : 0 // a velocity value might not be included with a noteOff command
-      
-        console.log(indicators_outpus)
-        // console.log(indicators_component.outputs)
-
-        if(indicators_outpus){
-          if(command == 144)
-            indicators_outpus[input_idx][0] = true
-          else if (command == 128)
-            indicators_outpus[input_idx][0] = false
-        }
-
-          
-			// 	switch (command) {
-			// 		case 144: // noteOn
-      //       // @ts-ignore
-      //       indicators_component.outputs[input_idx][0] = true
-			// 			break
-			// 		case 128: // noteOff
-      //       // @ts-ignore
-      //       indicators_component.outputs[input_idx][0] = false
-			// 			break
-			// 		// we could easily expand this switch statement to cover other types of commands such as controllers or sysex
+				if (indicators_outpus) {
+					if (command == NOTE_ON) indicators_outpus[input_idx][0] = true
+					else if (command == NOTE_OFF) indicators_outpus[input_idx][0] = false
+					else if (command >= NOTE_OFF && command <= NOTE_OFF + 16) {
+						indicators_outpus[input_idx][command - NOTE_OFF] = false
+					} else if (command >= NOTE_ON && command <= NOTE_ON + 16) {
+						indicators_outpus[input_idx][command - NOTE_ON] = true
+					}
 				}
+			}
 
 			// }
 			i++
@@ -128,22 +116,35 @@
 		// }, 60*1000*(t+len))
 	}
 
-	let loops: Array<Function> = []
-	let timeouts: Array<NodeJS.Timeout> = []
-	let intervals: Array<NodeJS.Timeout> = []
-
-	const NOTE_ON = 0x90
-	const NOTE_OFF = 0x80
-
 	const code_prepend = `
     const BPM = 128;
     const beat = (60./BPM);
     const bar = beat*4;
     const msr = 16*bar;
     const qbeat = (beat/4);
+    class Loop{
+        play(a,b,c,d,e){
+          console.log("COOOOOOOOOL")
+          console.log(this)
+            play(a,b - this.offs,c,d,e)
+        }
+        constructor(t,init,cb){
+            this.t = t; this.offs = 0
+            this.cb = cb.bind(this)
+            this.it = 0
+            if(init)
+                init()
+        }
+    }
     `
 
 	function reset_everything() {
+		indicators_outpus?.forEach((output, idx, v) => {
+			output?.forEach((e, idx) => {
+				output[idx] = false
+			})
+		})
+
 		for (let timeout of timeouts) {
 			clearTimeout(timeout)
 		}
@@ -171,16 +172,22 @@
 			for (let loop of loops) {
 				console.log(loop)
 				// @ts-ignore
-				let loop_t: number = loop.time
+				let loop_t: number = loop.t
 				let t_offs = webAudio.currentTime % loop_t
-				loop(t_offs)
+        // @ts-ignore
+        loop.offs = t_offs
+        // @ts-ignore
+				loop.cb()
 				let t_left = loop_t - t_offs
 				let _i = i
 				timeouts.push(
 					setTimeout(() => {
 						// @ts-ignore
 						intervals[_i] = setInterval(() => {
-							loop(0)
+              // @ts-ignore
+              loop.offs = 0
+              // @ts-ignore
+							loop.cb()
 						}, loop_t * 1000)
 					}, t_left * 1000),
 				)
@@ -229,7 +236,7 @@
 			const worker = new Worker(URL.createObjectURL(new Blob([worker_code])))
 			worker.onerror = (e) => {
 				// error while compiling code
-				let line = e.lineno - 4 - 7
+				let line = e.lineno - 4 - 7 - 14
 				monaco.editor.setModelMarkers(model, 'owner', [
 					{
 						startLineNumber: line,
